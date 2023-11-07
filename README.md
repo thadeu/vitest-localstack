@@ -1,22 +1,28 @@
-# jest-localstack-preset
+# vitest-localstack
 
-🥾 A simple way to do testing AWS Services and Jest or Serverless and Jest
+🥾 A simple way to do testing AWS Services using Vitest
 
-[![ci](https://github.com/thadeu/jest-localstack-preset/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/thadeu/jest-localstack-preset/actions/workflows/ci.yml)
-[![Npm package version](https://badgen.net/npm/v/@thadeu/jest-localstack-preset)](https://www.npmjs.com/package/@thadeu/jest-localstack-preset)
+[![ci](https://github.com/thadeu/vitest-localstack/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/thadeu/vitest-localstack/actions/workflows/ci.yml)
+[![Npm package version](https://badgen.net/npm/v/@thadeu/vitest-localstack)](https://www.npmjs.com/package/@thadeu/vitest-localstack)
 
 ## Install
 
 Install via yarn or npm
 
 ```bash
-$ yarn add -D @thadeu/jest-localstack-preset
+$ yarn add -D @thadeu/vitest-localstack
 ```
 
 or
 
 ```bash
-$ npm i -D @thadeu/jest-localstack-preset
+$ npm i -D @thadeu/vitest-localstack
+```
+
+or directly via Github
+
+```bash
+$ npm i -D thadeu/vitest-localstack
 ```
 
 ## Dependencies
@@ -27,29 +33,44 @@ $ npm i -D @thadeu/jest-localstack-preset
 
 ## Configuration
 
-Configure `jest.config.js`, adding a custom `preset` and `setupFiles`
+In your `vite.config.ts`, adding into test object, a globalSetup using `vite.setup.ts`
 
 ```js
-module.exports = {
-  preset: '@thadeu/jest-localstack-preset',
-  setupFiles: ['./jest.setup.js'],
-  ...
+import { defineConfig } from 'vitest/config'
+
+export default ({ mode }) => {
+  return defineConfig({
+    test: {
+      globalSetup: ['./vite.setup.ts'],
+    },
+  })
 }
 ```
 
-Create `jest.localstack.js` file with your required services, for example.
+Create or update your `vite.setup.ts`
+
+```ts
+import localStackSetup from '@thadeu/vitest-localstack/setup'
+import localStackTeardown from '@thadeu/vitest-localstack/teardown'
+
+export async function setup() {
+  await localStackSetup()
+}
+
+export async function teardown() {
+  await localStackTeardown()
+}
+
+```
+
+Create or update your `localstack.config.js` file with your required services, for example.
 
 ```js
 module.exports = {
-  services: ['dynamodb', 'kinesis', 's3', 'apigateway', 'lambda'],
-  showLog: false,
-  readyTimeout: 10000,
+  // https://docs.localstack.cloud/aws/feature-coverage/
+  services: ['dynamodb', 'kinesis', 's3'],
+  showLog: JSON.parse(process.env.LOCALSTACK_DEBUG || false),
   autoPullImage: true,
-  S3Buckets: [
-    {
-      Bucket: 'examplebucket',
-    },
-  ],
   DynamoDB: [
     {
       TableName: `users_test`,
@@ -74,16 +95,7 @@ module.exports = {
 | showLog       | boolean  | Define show logs for localstack                    |
 | services      | [string] | List of AWS Services                               |
 
-> You can define environment `JEST_LOCALSTACK_AUTO_PULLING` to precede autoPullImage configuration in your CI/CD
-
-Create a file `jest.setup.js`
-
-```js
-const AWS = require('aws-sdk')
-
-const { configureMockSDK } = require('@thadeu/jest-localstack-preset/aws')
-configureMockSDK(AWS)
-```
+> You can define environment `VITEST_LOCALSTACK_AUTO_PULLING` to precede autoPullImage configuration in your CI/CD
 
 ## Usage
 
@@ -107,29 +119,31 @@ So, use custom endpoint `process.env.AWS_ENDPOINT_URL` for general or specific t
 
 For example to use DynamoDB or S3.
 
-```js
-const AWS = require('aws-sdk')
+```ts
+import AWS from 'aws-sdk'
 
 const Table = new AWS.DynamoDB.DocumentClient({
   endpoint: process.env.AWS_DYNAMODB_ENDPOINT_URL,
 })
 ```
 
-So, create your tests using Jest.
+So, create your tests and then.
 
 An example for DynamoDB.
 
-```js
-const AWS = require('aws-sdk')
+```ts
+import AWS from 'aws-sdk'
+import { describe, it, expect } from 'vitest'
 
-const Table = new AWS.DynamoDB.DocumentClient({
-  endpoint: process.env.AWS_DYNAMODB_ENDPOINT_URL,
-})
+import { configureMockSDK } from '@thadeu/vitest-localstack'
+configureMockSDK(AWS)
+
+const Table = new AWS.DynamoDB.DocumentClient()
 
 it('should insert item into table', async () => {
   await Table.put({
     TableName: 'users_test',
-    Item: { pk: '1', sk: 'jest-localstack-preset' },
+    Item: { pk: '1', sk: 'vitest-localstack' },
   }).promise()
 
   const { Count } = await Table.scan({ TableName: 'users_test' }).promise()
@@ -139,13 +153,14 @@ it('should insert item into table', async () => {
 
 An example for S3
 
-```js
-const AWS = require('aws-sdk')
+```ts
+import AWS from 'aws-sdk'
+import { describe, it, expect } from 'vitest'
 
-const s3 = new AWS.S3({
-  endpoint: process.env.AWS_ENDPOINT_URL,
-  s3ForcePathStyle: true,
-})
+import { configureMockSDK } from '@thadeu/vitest-localstack'
+configureMockSDK(AWS)
+
+const s3 = new AWS.S3()
 
 it('must be create a bucket', async () => {
   await s3.createBucket({ Bucket: 'examplebucket' }).promise()
@@ -155,26 +170,15 @@ it('must be create a bucket', async () => {
   expect(Buckets.length).toBe(1)
   expect(Buckets[0].Name).toBe('examplebucket')
 })
+
 ```
 
 Usually you go to use other files, class and functions.
 
-```js
+```ts
 // UserReposity.js
-const AWS = require('aws-sdk')
-
-// =================================================
-// WITH configureMockSDK in your setupFiles
-// =================================================
+import AWS from 'aws-sdk'
 const Table = new AWS.DynamoDB.DocumentClient()
-
-// =================================================
-// WITHOUT configureMockSDK
-// =================================================
-// const Table = new AWS.DynamoDB.DocumentClient({
-//   endpoint: process.env.AWS_DYNAMODB_ENDPOINT_URL,
-//   region: process.env.AWS_REGION,
-// })
 
 export default class UserReposity {
   static async all(props = {}) {
@@ -189,13 +193,19 @@ export default class UserReposity {
   }
 }
 
-// UserReposity.test.js
+// UserReposity.test.ts
+import AWS from 'aws-sdk'
+import { describe, it, expect } from 'vitest'
+
+import { configureMockSDK } from '@thadeu/vitest-localstack'
+configureMockSDK(AWS)
+
 import UserReposity from './UserReposity'
 
 describe('UserReposity', function () {
   it('should insert item into repository', async () => {
     await UserReposity.save({
-      Item: { pk: '1', sk: 'jest-localstack-preset' },
+      Item: { pk: '1', sk: 'vitest-localstack' },
     })
 
     const { Count } = await UserReposity.all()
@@ -223,7 +233,7 @@ You can enabled debug flag using your custom environment.
 | Envs                         | Type    |
 | ---------------------------- | ------- |
 | LOCALSTACK_DEBUG             | boolean |
-| JEST_LOCALSTACK_AUTO_PULLING | boolean |
+| VITEST_LOCALSTACK_AUTO_PULLING | boolean |
 
 ## CI (Continuous Integration)
 
@@ -237,8 +247,8 @@ name: ci
 on: push
 
 jobs:
-  jest:
-    name: jest
+  test:
+    name: test
     runs-on: ubuntu-latest
 
     services:
@@ -262,21 +272,17 @@ jobs:
       - name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
-          node-version: 14.17.x
+          node-version: 18.17
 
       - name: Install Yarn Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Yarn Jest
+      - name: Yarn tests
         run: yarn test
         env:
           LOCALSTACK_DEBUG: true
-          JEST_LOCALSTACK_AUTO_PULLING: true
+          VITEST_LOCALSTACK_AUTO_PULLING: true
 ```
-
-## Disclaimer
-
-This project is based on the amazing project https://github.com/goldsam/jest-localstack.
 
 ## Contributing
 
