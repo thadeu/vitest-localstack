@@ -1,7 +1,7 @@
 {
   "name": "@thadeu/vitest-localstack",
-  "version": "1.0.10",
-  "main": "jest-preset.js",
+  "version": "1.0.0",
+  "main": "aws.js",
   "repository": "git@github.com:thadeu/vitest-localstack.git",
   "homepage": "https://github.com/thadeu/vitest-localstack#README",
   "bugs": {
@@ -33,12 +33,6 @@
     "!node_modules/",
     "!.github/"
   ],
-  "jest": {
-    "preset": "./jest-preset.js",
-    "testPathIgnorePatterns": [
-      "./example/"
-    ]
-  },
   "publishConfig": {
     "access": "public"
   },
@@ -59,15 +53,11 @@
   "devDependencies": {
     "@types/node": "^18.0.6",
     "aws-sdk": "^2",
-    "cross-env": "^5.2.1",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.3.0",
-    "eslint-plugin-jest": "^22.17.0",
-    "eslint-plugin-jest-formatting": "^1.1.0",
     "eslint-plugin-json-format": "^2.0.1",
     "eslint-plugin-prettier": "^3.1.1",
     "husky": "3.0.5",
-    "jest": "24.9.0",
     "lint-staged": "9.2.5",
     "prettier": "^3.0.3",
     "typescript": "4.6",
