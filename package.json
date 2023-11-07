@@ -1,0 +1,97 @@
+{
+  "name": "@thadeu/vitest-localstack",
+  "version": "1.0.10",
+  "main": "jest-preset.js",
+  "repository": "git@github.com:thadeu/vitest-localstack.git",
+  "homepage": "https://github.com/thadeu/vitest-localstack#README",
+  "bugs": {
+    "url": "https://github.com/thadeu/vitest-localstack/ISSUES"
+  },
+  "engines": {
+    "node": ">= 12"
+  },
+  "keywords": [
+    "vitest",
+    "aws",
+    "localstack",
+    "vitest preset",
+    "vitest environment",
+    "vitest localstack preset",
+    "vitest dynamo localstack",
+    "vitest dynamo"
+  ],
+  "author": {
+    "name": "Thadeu Esteves",
+    "email": "tadeuu@gmail.com",
+    "url": "https://github.com/thadeu"
+  },
+  "files": [
+    "*",
+    "!example/",
+    "!spec/",
+    "!test/",
+    "!node_modules/",
+    "!.github/"
+  ],
+  "jest": {
+    "preset": "./jest-preset.js",
+    "testPathIgnorePatterns": [
+      "./example/"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "coverage": "npx vitest run --coverage",
+    "lint": "eslint . --fix",
+    "test:run": "npx vitest run",
+    "test:watch": "npx vitest --watch"
+  },
+  "peerDependencies": {
+    "aws-sdk": "^2.x.x"
+  },
+  "dependencies": {
+    "cwd": "0.10.0",
+    "dockerode": "^3.3.2",
+    "ora": "^5"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.6",
+    "aws-sdk": "^2",
+    "cross-env": "^5.2.1",
+    "eslint": "^6.4.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-jest": "^22.17.0",
+    "eslint-plugin-jest-formatting": "^1.1.0",
+    "eslint-plugin-json-format": "^2.0.1",
+    "eslint-plugin-prettier": "^3.1.1",
+    "husky": "3.0.5",
+    "jest": "24.9.0",
+    "lint-staged": "9.2.5",
+    "prettier": "^3.0.3",
+    "typescript": "4.6",
+    "vite": "^4.5.0",
+    "vitest": "^0.34.6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.ts": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{html,json,md,yml}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "license": "MIT"
+}
