@@ -74,11 +74,6 @@
     "vite": "^4.5.0",
     "vitest": "^0.34.6"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.js": [
       "eslint --fix",
