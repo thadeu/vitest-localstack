@@ -295,6 +295,10 @@ async function createS3Buckets(config, services) {
       s3ForcePathStyle: true,
     })
 
+    if (process.env.AWS_REGION == 'us-east-1') {
+      s3.api.globalEndpoint = 'localhost'
+    }
+
     const result = await Promise.all(config.S3Buckets.map((s3Bucket) => s3.createBucket(s3Bucket).promise()))
     spinner.start('createS3Buckets OK', result)
 
