@@ -1,6 +1,6 @@
 {
   "name": "@thadeu/vitest-localstack",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "aws.js",
   "repository": "git@github.com:thadeu/vitest-localstack.git",
   "homepage": "https://github.com/thadeu/vitest-localstack#README",
