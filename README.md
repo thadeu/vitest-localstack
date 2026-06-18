@@ -94,8 +94,35 @@ module.exports = {
 | autoPullImage | boolean  | Define if we go to download image automatically    |
 | showLog       | boolean  | Define show logs for localstack                    |
 | services      | [string] | List of AWS Services                               |
+| image         | string   | LocalStack image/tag (default `localstack/localstack`) |
+| authToken     | string   | LocalStack Auth Token (see below)                  |
 
 > You can define environment `VITEST_LOCALSTACK_AUTO_PULLING` to precede autoPullImage configuration in your CI/CD
+
+### Auth Token (required since 2026-03-23)
+
+Since **March 23, 2026** LocalStack ships as a single image and `localstack/localstack:latest`
+requires an Auth Token at runtime — even for the Free plan and in CI. The image pull itself stays
+public; the token only activates the container.
+
+Provide it via the `LOCALSTACK_AUTH_TOKEN` environment variable (recommended for CI — keep it in a
+secret), or via the `authToken` key in `localstack.config.js`. The env var takes precedence.
+
+```js
+module.exports = {
+  services: ['dynamodb', 's3'],
+  authToken: process.env.LOCALSTACK_AUTH_TOKEN,
+}
+```
+
+If you'd rather not use a token, pin an older community image instead:
+
+```js
+module.exports = {
+  image: 'localstack/localstack:4.12',
+  services: ['dynamodb', 's3'],
+}
+```
 
 ## Usage
 
@@ -234,6 +261,7 @@ You can enabled debug flag using your custom environment.
 | ---------------------------- | ------- |
 | LOCALSTACK_DEBUG             | boolean |
 | VITEST_LOCALSTACK_AUTO_PULLING | boolean |
+| LOCALSTACK_AUTH_TOKEN        | string  |
 
 ## CI (Continuous Integration)
 

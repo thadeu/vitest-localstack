@@ -16,9 +16,9 @@ jobs:
         working-directory: ./
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
@@ -26,9 +26,9 @@ jobs:
             ${{ runner.os }}-modules-
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.17.x
+          node-version-file: '.nvmrc'
 
       - name: Install Yarn Dependencies
         run: yarn install --frozen-lockfile
@@ -37,3 +37,4 @@ jobs:
         run: yarn test:run
         env:
           LOCALSTACK_DEBUG: true
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}

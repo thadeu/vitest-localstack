@@ -96,6 +96,13 @@ async function isDockerLocalStackBlank() {
 async function createContainer(config, services) {
   let docker = new Docker()
 
+  if (!getAuthToken(config) && !hasPinnedVersion(config.image)) {
+    spinner.warn(
+      `LocalStack ${config.image} requires LOCALSTACK_AUTH_TOKEN since 2026-03-23. ` +
+        `Set the env var, add "authToken" to localstack.config.js, or pin a community image (e.g. "localstack/localstack:4.12").`,
+    )
+  }
+
   let autoPullImage = JSON.parse(process.env.VITEST_LOCALSTACK_AUTO_PULLING || config.autoPullImage)
 
   if ((await isDockerLocalStackBlank()) && autoPullImage) {
@@ -166,8 +173,24 @@ async function factoryConfig() {
   }
 }
 
+function getAuthToken(config) {
+  return process.env.LOCALSTACK_AUTH_TOKEN || (config && config.authToken) || null
+}
+
+function hasPinnedVersion(image) {
+  const tag = String(image || '').split(':')[1]
+
+  return !!tag && tag !== 'latest'
+}
+
 function buildEnv(config) {
   const env = ['FORCE_NONINTERACTIVE=true']
+
+  const authToken = getAuthToken(config)
+
+  if (authToken) {
+    env.push(`LOCALSTACK_AUTH_TOKEN=${authToken}`)
+  }
 
   if (config.services) {
     env.push(`SERVICES=${Array.isArray(config.services) ? config.services.join(',') : config.services}`)

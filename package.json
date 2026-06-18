@@ -26,12 +26,12 @@
     "url": "https://github.com/thadeu"
   },
   "files": [
-    "*",
-    "!example/",
-    "!spec/",
-    "!test/",
-    "!node_modules/",
-    "!.github/"
+    "aws.js",
+    "setup.js",
+    "teardown.js",
+    "utils.js",
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
