@@ -99,7 +99,7 @@ async function createContainer(config, services) {
   if (!getAuthToken(config) && !hasPinnedVersion(config.image)) {
     spinner.warn(
       `LocalStack ${config.image} requires LOCALSTACK_AUTH_TOKEN since 2026-03-23. ` +
-        `Set the env var, add "authToken" to localstack.config.js, or pin a community image (e.g. "localstack/localstack:4.12").`,
+        `Set the env var, add "authToken" to localstack.config.js, or pin the last community image "localstack/localstack:4.4.0".`,
     )
   }
 
@@ -164,10 +164,15 @@ async function factoryConfig() {
     const config = require(pathConfig)
     let result = { ...CONFIG_DEFAULTS, ...(typeof config === 'function' ? await config() : config) }
 
+    if (process.env.LOCALSTACK_IMAGE) {
+      result.image = process.env.LOCALSTACK_IMAGE
+    }
+
     return result
   } catch (error) {
     return {
       ...CONFIG_DEFAULTS,
+      image: process.env.LOCALSTACK_IMAGE || CONFIG_DEFAULTS.image,
       services: Object.entries(DEFAULT_SERVICES).map((o) => o.join(':')),
     }
   }

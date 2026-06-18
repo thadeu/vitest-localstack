@@ -7,10 +7,6 @@ jobs:
     name: test
     runs-on: ubuntu-latest
 
-    services:
-      localstack:
-        image: localstack/localstack
-
     defaults:
       run:
         working-directory: ./
@@ -37,4 +33,3 @@ jobs:
         run: yarn test:run
         env:
           LOCALSTACK_DEBUG: true
-          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}

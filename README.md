@@ -115,14 +115,18 @@ module.exports = {
 }
 ```
 
-If you'd rather not use a token, pin an older community image instead:
+If you'd rather not use a token, pin the last community image (`4.4.0`, the final release before
+the auth requirement) instead — no token or account needed:
 
 ```js
 module.exports = {
-  image: 'localstack/localstack:4.12',
+  image: 'localstack/localstack:4.4.0',
   services: ['dynamodb', 's3'],
 }
 ```
+
+The image can also be set per-run with the `LOCALSTACK_IMAGE` environment variable, which takes
+precedence over the `image` config key (handy to override the pin in CI without editing config).
 
 ## Usage
 
@@ -262,6 +266,7 @@ You can enabled debug flag using your custom environment.
 | LOCALSTACK_DEBUG             | boolean |
 | VITEST_LOCALSTACK_AUTO_PULLING | boolean |
 | LOCALSTACK_AUTH_TOKEN        | string  |
+| LOCALSTACK_IMAGE            | string  |
 
 ## CI (Continuous Integration)
 
